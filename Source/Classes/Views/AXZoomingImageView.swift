@@ -137,6 +137,7 @@ class AXZoomingImageView: UIScrollView, UIScrollViewDelegate {
     
     func scrollViewWillBeginZooming(_ scrollView: UIScrollView, with view: UIView?) {
         scrollView.isScrollEnabled = true
+        zoomScaleDelegate?.zoomingImageViewWillBeginZooming(self)
     }
     
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -208,4 +209,5 @@ class AXZoomingImageView: UIScrollView, UIScrollViewDelegate {
 
 protocol AXZoomingImageViewDelegate: class {
     func zoomingImageView(_ zoomingImageView: AXZoomingImageView, maximumZoomScaleFor imageSize: CGSize) -> CGFloat
+    func zoomingImageViewWillBeginZooming(_ zoomingImageView: AXZoomingImageView)
 }

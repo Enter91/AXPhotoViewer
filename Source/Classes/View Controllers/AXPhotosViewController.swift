@@ -63,6 +63,9 @@ import FLAnimatedImage_tvOS
     /// The underlying `OverlayView` that is used for displaying photo captions, titles, and actions.
     @objc public let overlayView = AXOverlayView()
     
+    /// A boolean that denotes whether or not the overlay will be visible after zooming.
+    @objc public var overlayViewDismissesAtZooming = false
+    
     /// The photos to display in the PhotosViewController.
     @objc open var dataSource = AXPhotosDataSource() {
         didSet {
@@ -975,6 +978,14 @@ import FLAnimatedImage_tvOS
         }
         
         return self.maximumZoomScale(for: photo, minimumZoomScale: minimumZoomScale, imageSize: imageSize)
+    }
+    
+    public func photoViewControllerWillBeginZooming(_ photoViewController: AXPhotoViewController) {
+        guard overlayViewDismissesAtZooming else {
+            return
+        }
+        
+        self.overlayView.setShowInterface(false, animated: true)
     }
     
     // MARK: - AXPhotosViewControllerDelegate calls

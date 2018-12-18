@@ -143,6 +143,10 @@ import FLAnimatedImage_tvOS
                                                   imageSize: imageSize) ?? .leastNormalMagnitude
     }
     
+    func zoomingImageViewWillBeginZooming(_ zoomingImageView: AXZoomingImageView) {
+        self.delegate?.photoViewControllerWillBeginZooming(self)
+    }
+    
     // MARK: - Notifications
     @objc fileprivate func photoLoadingProgressDidUpdate(_ notification: Notification) {
         guard let photo = notification.object as? AXPhotoProtocol else {
@@ -200,4 +204,6 @@ import FLAnimatedImage_tvOS
                              minimumZoomScale: CGFloat,
                              imageSize: CGSize) -> CGFloat
     
+    @objc(photoViewControllerWillBeginZooming:)
+    func photoViewControllerWillBeginZooming(_ photoViewController: AXPhotoViewController)
 }
