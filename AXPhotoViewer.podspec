@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
 
   s.requires_arc    = true
 
-  s.ios.deployment_target = '10.0'
+  s.ios.deployment_target = '8.0'
   s.tvos.deployment_target = '9.0'
 
   s.default_subspec = 'Core'
@@ -53,7 +53,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'Nuke' do |nk|
-    nk.ios.deployment_target = '10.0'
+    nk.ios.deployment_target = '9.0'
     nk.dependency      'AXPhotoViewer/Core'
     nk.dependency      'Nuke', '>= 7.0'
     nk.source_files  = 'Source/Integrations/NukeIntegration.swift'

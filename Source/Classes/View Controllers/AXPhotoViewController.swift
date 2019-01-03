@@ -84,6 +84,18 @@ import FLAnimatedImage_tvOS
                                                       size: loadingViewSize)
     }
     
+    private var hasTransitionImage: Bool = false
+    @objc public func applyTransitionInfo(_ transitionInfo: AXTransitionInfo) {
+        if let image = transitionInfo.startingView?.image {
+            hasTransitionImage = true
+            zoomingImageView.image = image
+        } else {
+            hasTransitionImage = false
+            zoomingImageView.image = nil
+            zoomingImageView.animatedImage = nil
+        }
+    }
+    
     @objc public func applyPhoto(_ photo: AXPhotoProtocol) {
         self.photo = photo
         
@@ -97,7 +109,9 @@ import FLAnimatedImage_tvOS
         
         switch photo.ax_loadingState {
         case .loading, .notLoaded, .loadingCancelled:
-            resetImageView()
+            if !hasTransitionImage {
+                resetImageView()
+            }
             self.loadingView?.startLoading(initialProgress: photo.ax_progress)
         case .loadingFailed:
             resetImageView()

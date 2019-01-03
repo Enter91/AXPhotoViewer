@@ -762,6 +762,7 @@ import FLAnimatedImage_tvOS
         }
         
         photoViewController.pageIndex = pageIndex
+        photoViewController.applyTransitionInfo(transitionInfo)
         photoViewController.applyPhoto(photo)
         
         let insertionIndex = self.orderedViewControllers.insertionIndex(of: photoViewController, isOrderedBefore: { $0.pageIndex < $1.pageIndex })
