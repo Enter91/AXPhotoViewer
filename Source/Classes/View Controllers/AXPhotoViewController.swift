@@ -96,6 +96,15 @@ import FLAnimatedImage_tvOS
         }
     }
     
+    public func forceShowLoader() {
+        guard let photo = photo, [AXPhotoLoadingState.loading, AXPhotoLoadingState.notLoaded].contains(photo.ax_loadingState), let loadingView = loadingView as? AXLoadingView else {
+            return
+        }
+        
+        zoomingImageView.bringSubviewToFront(loadingView)
+        loadingView.startLoading(initialProgress: photo.ax_progress)
+    }
+
     @objc public func applyPhoto(_ photo: AXPhotoProtocol) {
         self.photo = photo
         
@@ -161,6 +170,10 @@ import FLAnimatedImage_tvOS
         self.delegate?.photoViewControllerWillBeginZooming(self)
     }
     
+    var zoomingImageViewCanZoom: Bool {
+        return !(((loadingView as? AXLoadingView)?.indicatorView as? UIActivityIndicatorView)?.isAnimating ?? false)
+    }
+
     // MARK: - Notifications
     @objc fileprivate func photoLoadingProgressDidUpdate(_ notification: Notification) {
         guard let photo = notification.object as? AXPhotoProtocol else {

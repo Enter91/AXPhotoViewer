@@ -508,6 +508,7 @@ import FLAnimatedImage_tvOS
             
             if canceled {
                 self.transitionController?.forceNonInteractiveDismissal = false
+                self.currentPhotoViewController?.forceShowLoader()
                 #if os(iOS)
                 self.panGestureRecognizer?.isEnabled = true
                 #endif

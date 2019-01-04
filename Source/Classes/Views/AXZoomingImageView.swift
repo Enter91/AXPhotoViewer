@@ -132,6 +132,7 @@ class AXZoomingImageView: UIScrollView, UIScrollViewDelegate {
     
     // MARK: - UIScrollViewDelegate
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        scrollView.pinchGestureRecognizer?.isEnabled = zoomScaleDelegate?.zoomingImageViewCanZoom ?? true
         return self.imageView
     }
     
@@ -184,6 +185,10 @@ class AXZoomingImageView: UIScrollView, UIScrollViewDelegate {
     #if os(iOS)
     // MARK: - UITapGestureRecognizer
     @objc fileprivate func doubleTapAction(_ sender: UITapGestureRecognizer) {
+        guard zoomScaleDelegate?.zoomingImageViewCanZoom ?? true else {
+            return
+        }
+        
         let point = sender.location(in: self.imageView)
         
         var zoomScale = self.maximumZoomScale
@@ -210,4 +215,5 @@ class AXZoomingImageView: UIScrollView, UIScrollViewDelegate {
 protocol AXZoomingImageViewDelegate: class {
     func zoomingImageView(_ zoomingImageView: AXZoomingImageView, maximumZoomScaleFor imageSize: CGSize) -> CGFloat
     func zoomingImageViewWillBeginZooming(_ zoomingImageView: AXZoomingImageView)
+    var zoomingImageViewCanZoom: Bool {get}
 }
