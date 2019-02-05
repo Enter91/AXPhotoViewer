@@ -16,6 +16,14 @@ import UIKit
     @objc open var descriptionLabel = UILabel()
     @objc open var creditLabel = UILabel()
     
+    @objc open var buttonView: UIView? = nil {
+        didSet {
+            if let buttonView = buttonView {
+                addSubview(buttonView)
+            }
+        }
+    }
+    
     fileprivate var titleSizingLabel = UILabel()
     fileprivate var descriptionSizingLabel = UILabel()
     fileprivate var creditSizingLabel = UILabel()
@@ -337,23 +345,45 @@ import UIKit
         #if os(iOS)
         let TopPadding: CGFloat = 10
         let BottomPadding: CGFloat = 10
-        let HorizontalPadding: CGFloat = 15
+        let LeftHorizontalPadding: CGFloat = 15
+        var RightTitleHorizontalPadding: CGFloat = 15
+        
+        buttonView?.subviews.forEach { (view) in
+            view.sizeToFit()
+            RightTitleHorizontalPadding += view.frame.width
+        }
+        buttonView?.layoutIfNeeded()
+        
+        if let buttonView = buttonView {
+            buttonView.frame = CGRect(x: constrainedSize.width - RightTitleHorizontalPadding, y: TopPadding, width: buttonView.frame.width, height: buttonView.frame.height)
+        }
+        
+        let RightHorizontalPadding: CGFloat = 15
         let InterLabelSpacing: CGFloat = 2
         #else
         let TopPadding: CGFloat = 30
         let BottomPadding: CGFloat = 0
-        let HorizontalPadding: CGFloat = 0
+        let LeftHorizontalPadding: CGFloat = 0
+        let RightTitleHorizontalPadding: CGFloat = 0
+        let RightHorizontalPadding: CGFloat = 0
         let InterLabelSpacing: CGFloat = 2
         #endif
         
-        let xOffset = HorizontalPadding
+        let xOffset = LeftHorizontalPadding
         var yOffset: CGFloat = 0
         
         for (index, label) in self.visibleSizingLabels.enumerated() {
             var constrainedLabelSize = constrainedSize
-            constrainedLabelSize.width -= (2 * HorizontalPadding)
             
-            let labelSize = label.sizeThatFits(constrainedLabelSize)
+            let labelSize: CGSize!
+            if label == titleSizingLabel, let buttonView = buttonView {
+                constrainedLabelSize.width -= (LeftHorizontalPadding + RightTitleHorizontalPadding)
+                labelSize = label.sizeThatFits(constrainedLabelSize)
+                labelSize.height = max(labelSize.height, buttonView.frame.height)
+            } else {
+                constrainedLabelSize.width -= (LeftHorizontalPadding + RightHorizontalPadding)
+                labelSize = label.sizeThatFits(constrainedLabelSize)
+            }
             
             if index == 0 {
                 yOffset += TopPadding
