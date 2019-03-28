@@ -375,7 +375,7 @@ import UIKit
         for (index, label) in self.visibleSizingLabels.enumerated() {
             var constrainedLabelSize = constrainedSize
             
-            let labelSize: CGSize!
+            var labelSize: CGSize!
             if label == titleSizingLabel, let buttonView = buttonView {
                 constrainedLabelSize.width -= (LeftHorizontalPadding + RightTitleHorizontalPadding)
                 labelSize = label.sizeThatFits(constrainedLabelSize)
