@@ -26,18 +26,14 @@ open class SimpleNetworkIntegration: NSObject, AXNetworkIntegrationProtocol, Sim
     public func loadPhoto(_ photo: AXPhotoProtocol) {
         if photo.imageData != nil || photo.image != nil {
             AXDispatchUtils.executeInBackground { [weak self] in
-                guard let `self` = self else {
-                    return
-                }
+                guard let `self` = self else { return }
                 
                 self.delegate?.networkIntegration(self, loadDidFinishWith: photo)
             }
             return
         }
         
-        guard let url = photo.url else {
-            return
-        }
+        guard let url = photo.url else { return }
         
         let dataTask = self.urlSessionWrapper.dataTask(with: url)
         self.dataTasks.setObject(dataTask, forKey: photo)
@@ -46,9 +42,7 @@ open class SimpleNetworkIntegration: NSObject, AXNetworkIntegrationProtocol, Sim
     }
     
     public func cancelLoad(for photo: AXPhotoProtocol) {
-        guard let dataTask = self.dataTasks.object(forKey: photo) else {
-            return
-        }
+        guard let dataTask = self.dataTasks.object(forKey: photo) else { return }
         
         dataTask.cancel()
     }
@@ -69,14 +63,10 @@ open class SimpleNetworkIntegration: NSObject, AXNetworkIntegrationProtocol, Sim
                                        dataTask: URLSessionDataTask, 
                                        didUpdateProgress progress: CGFloat) {
         
-        guard let photo = self.photos[dataTask.taskIdentifier] else {
-            return
-        }
+        guard let photo = self.photos[dataTask.taskIdentifier] else { return }
         
         AXDispatchUtils.executeInBackground { [weak self] in
-            guard let `self` = self else {
-                return
-            }
+            guard let `self` = self else { return }
             
             self.delegate?.networkIntegration?(self,
                                                didUpdateLoadingProgress: progress,
@@ -89,9 +79,7 @@ open class SimpleNetworkIntegration: NSObject, AXNetworkIntegrationProtocol, Sim
                                        didCompleteWithError error: Error?,
                                        object: Any?) {
         
-        guard let photo = self.photos[task.taskIdentifier] else {
-            return
-        }
+        guard let photo = self.photos[task.taskIdentifier] else { return }
         
         weak var weakSelf = self
         func removeDataTask() {
@@ -102,18 +90,14 @@ open class SimpleNetworkIntegration: NSObject, AXNetworkIntegrationProtocol, Sim
         if let error = error {
             removeDataTask()
             AXDispatchUtils.executeInBackground { [weak self] in
-                guard let `self` = self else {
-                    return
-                }
+                guard let `self` = self else { return }
                 
                 self.delegate?.networkIntegration(self, loadDidFailWith: error, for: photo)
             }
             return
         }
         
-        guard let data = object as? Data else {
-            return
-        }
+        guard let data = object as? Data else { return }
         
         if data.containsGIF() {
             photo.imageData = data
@@ -123,9 +107,7 @@ open class SimpleNetworkIntegration: NSObject, AXNetworkIntegrationProtocol, Sim
         
         removeDataTask()
         AXDispatchUtils.executeInBackground { [weak self] in
-            guard let `self` = self else {
-                return
-            }
+            guard let `self` = self else { return }
             
             self.delegate?.networkIntegration(self, loadDidFinishWith: photo)
         }
