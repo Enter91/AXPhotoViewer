@@ -9,7 +9,7 @@
 import UIKit
 
 @objc open class AXCaptionView: UIView, AXCaptionViewProtocol {
-        
+    
     @objc public var animateCaptionInfoChanges: Bool = true
     
     @objc open var titleLabel = UILabel()
@@ -124,7 +124,7 @@ import UIKit
             self.descriptionSizingLabel,
             self.creditSizingLabel
         ]
-
+        
         super.init(frame: .zero)
         
         self.backgroundColor = .clear
@@ -157,7 +157,7 @@ import UIKit
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
-
+    
     @objc open func applyCaptionInfo(attributedTitle: NSAttributedString?,
                                      attributedDescription: NSAttributedString?,
                                      attributedCredit: NSAttributedString?) {
@@ -201,7 +201,7 @@ import UIKit
         
         self.visibleSizingLabels = []
         self.visibleLabels = []
-
+        
         self.titleSizingLabel.attributedText = title
         if !title.string.isEmpty {
             self.visibleSizingLabels.append(self.titleSizingLabel)
@@ -243,6 +243,15 @@ import UIKit
             self.creditLabel.attributedText = self.creditSizingLabel.attributedText
             self.creditLabel.frame = self.creditSizingLabel.frame
             self.creditLabel.isHidden = (self.creditSizingLabel.attributedText?.string.isEmpty ?? true)
+            
+            let TopPadding: CGFloat
+            #if os(iOS)
+            TopPadding = 10
+            #else
+            TopPadding = 30
+            #endif
+            self.buttonView?.frame.origin.x = self.titleLabel.frame.maxX
+            self.buttonView?.frame.origin.y = TopPadding
         }
         
         if self.animateCaptionInfoChanges && self.needsCaptionLayoutAnim {
@@ -254,6 +263,7 @@ import UIKit
                     self.titleLabel.alpha = 0
                     self.descriptionLabel.alpha = 0
                     self.creditLabel.alpha = 0
+                    self.buttonView?.alpha = 0
                 }
                 
                 let animateOutCompletion: (_ finished: Bool) -> Void = { (finished) in
@@ -269,6 +279,7 @@ import UIKit
                     self.titleLabel.alpha = 1
                     self.descriptionLabel.alpha = 1
                     self.creditLabel.alpha = 1
+                    self.buttonView?.alpha = 1
                 }
                 
                 let animateInCompletion: (_ finished: Bool) -> Void = { (finished) in
@@ -313,7 +324,7 @@ import UIKit
         
         self.isFirstLayout = false
     }
-
+    
     open override func sizeThatFits(_ size: CGSize) -> CGSize {
         return self.computeSize(for: size, applySizingLayout: false)
     }
@@ -354,7 +365,7 @@ import UIKit
         buttonView?.layoutIfNeeded()
         
         if let buttonView = buttonView {
-            buttonView.frame = CGRect(x: constrainedSize.width - RightTitleHorizontalPadding, y: TopPadding, width: buttonView.frame.width, height: buttonView.frame.height)
+            buttonView.frame = CGRect(x: constrainedSize.width - RightTitleHorizontalPadding, y: TopPadding, width: RightTitleHorizontalPadding, height: buttonView.frame.height)
         }
         
         let RightHorizontalPadding: CGFloat = 15
@@ -413,20 +424,20 @@ import UIKit
     // MARK: - Helpers
     private func makeAttributedStringWithDefaults(_ defaults: [NSAttributedString.Key: Any],
                                                   for attributedString: NSAttributedString) -> (attributedString: NSAttributedString,
-                                                  removedDefaultKeys: Set<NSAttributedString.Key>) {
-        guard let defaultAttributedString = attributedString.mutableCopy() as? NSMutableAttributedString else { return (attributedString, []) }
-        
-        var removedKeys = Set<NSAttributedString.Key>()
-        var defaultAttributes = defaults
-        defaultAttributedString.enumerateAttributes(in: NSMakeRange(0, defaultAttributedString.length), options: []) { (attributes, range, stop) in
-            for key in attributes.keys where defaultAttributes[key] != nil {
-                defaultAttributes.removeValue(forKey: key)
-                removedKeys.insert(key)
+        removedDefaultKeys: Set<NSAttributedString.Key>) {
+            guard let defaultAttributedString = attributedString.mutableCopy() as? NSMutableAttributedString else { return (attributedString, []) }
+            
+            var removedKeys = Set<NSAttributedString.Key>()
+            var defaultAttributes = defaults
+            defaultAttributedString.enumerateAttributes(in: NSMakeRange(0, defaultAttributedString.length), options: []) { (attributes, range, stop) in
+                for key in attributes.keys where defaultAttributes[key] != nil {
+                    defaultAttributes.removeValue(forKey: key)
+                    removedKeys.insert(key)
+                }
             }
-        }
-        
-        defaultAttributedString.addAttributes(defaultAttributes, range: NSMakeRange(0, defaultAttributedString.length))
-        return (defaultAttributedString, removedKeys)
+            
+            defaultAttributedString.addAttributes(defaultAttributes, range: NSMakeRange(0, defaultAttributedString.length))
+            return (defaultAttributedString, removedKeys)
     }
     
     private func makeFontAdjustedAttributedString(for attributedString: NSAttributedString?,
@@ -436,22 +447,22 @@ import UIKit
         fontAdjustedAttributedString.enumerateAttribute(NSAttributedString.Key.font,
                                                         in: NSMakeRange(0, fontAdjustedAttributedString.length),
                                                         options: [], using: { [weak self] (value, range, stop) in
-            guard let oldFont = value as? UIFont else { return }
-            
-            var newFontDescriptor: UIFontDescriptor
-            if #available(iOS 10.0, tvOS 10.0, *) {
-                newFontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: fontTextStyle,
-                                                                             compatibleWith: self?.traitCollection)
-            } else {
-                newFontDescriptor = UIFont.preferredFont(forTextStyle: fontTextStyle).fontDescriptor
-            }
-            
-            let newFont = oldFont.withSize(newFontDescriptor.pointSize)
-            fontAdjustedAttributedString.removeAttribute(.font, range: range)
-            fontAdjustedAttributedString.addAttribute(.font, value: newFont, range: range)
+                                                            guard let oldFont = value as? UIFont else { return }
+                                                            
+                                                            var newFontDescriptor: UIFontDescriptor
+                                                            if #available(iOS 10.0, tvOS 10.0, *) {
+                                                                newFontDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: fontTextStyle,
+                                                                                                                             compatibleWith: self?.traitCollection)
+                                                            } else {
+                                                                newFontDescriptor = UIFont.preferredFont(forTextStyle: fontTextStyle).fontDescriptor
+                                                            }
+                                                            
+                                                            let newFont = oldFont.withSize(newFontDescriptor.pointSize)
+                                                            fontAdjustedAttributedString.removeAttribute(.font, range: range)
+                                                            fontAdjustedAttributedString.addAttribute(.font, value: newFont, range: range)
         })
         
         return fontAdjustedAttributedString.copy() as? NSAttributedString
     }
-
+    
 }
